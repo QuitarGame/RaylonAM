@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Архив аномальных объектов — РАМ Исследовательская Группа</title>
+  <style>
+    :root {
+      --bg:        #0a0a0a;
+      --text:       #7fff7f;
+      --header:     #adff2f;
+      --header-alt: #ffff7f;
+      --warning:    #ff5555;
+      --glitch:     #ff00ff;
+      --card-bg:    #111111;
+      --card-border:#1a3f1a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: #000;
+      border-bottom: 1px solid #1a3f1a;
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.8rem;
+      justify-content: center;
+    }
+
+    nav a {
+      color: #555;
+      text-decoration: none;
+      font-size: 1.05rem;
+      letter-spacing: 1px;
+      transition: all 0.2s;
+      position: relative;
+      cursor: pointer;
+      padding: 0.4rem 0;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: var(--header);
+      text-shadow: 0 0 8px var(--header);
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -3px;
+      left: 0;
+      background: var(--header);
+      transition: width 0.25s ease;
+    }
+
+    nav a:hover::after,
+    nav a.active::after {
+      width: 100%;
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 2rem auto;
+      padding: 0 1.2rem;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 5vw, 2.6rem);
+      color: var(--header);
+      margin-bottom: 1.2rem;
+      text-shadow: 0 0 10px rgba(173,255,47,0.3);
+      letter-spacing: 1.5px;
+    }
+
+    h2 {
+      font-size: clamp(1.4rem, 4vw, 1.7rem);
+      color: var(--header);
+      margin: 1.8rem 0 0.9rem;
+    }
+
+    .intro {
+      max-width: 760px;
+      margin: 0 auto 2.5rem;
+      font-size: clamp(1rem, 3vw, 1.12rem);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 5px;
+      padding: clamp(1.2rem, 3vw, 1.8rem) clamp(1.3rem, 4vw, 2.2rem);
+      margin: 2.2rem 0;
+      box-shadow: 0 0 16px rgba(0,0,0,0.88), inset 0 0 10px rgba(0,255,0,0.03);
+      animation: subtleDrift 13s infinite alternate ease-in-out;
+    }
+
+    @keyframes subtleDrift {
+      0%,100% { transform: translateY(0) skewX(0deg); }
+      50%     { transform: translateY(-1.5px) skewX(0.3deg); }
+    }
+
+    .card:hover {
+      animation-play-state: paused;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(173,255,47,0.09);
+    }
+
+    .warning, .error {
+      color: var(--warning);
+      font-weight: bold;
+      margin: 1.4rem 0;
+      padding: 0.8rem 1.2rem;
+      border-left: 4px solid var(--warning);
+      background: rgba(255,85,85,0.06);
+      animation: pulse 4.2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 0.7; }
+      50%     { opacity: 1; }
+    }
+
+    .glitch {
+      color: var(--glitch);
+      animation: glitch 1.5s infinite;
+      display: inline-block;
+    }
+
+    @keyframes glitch {
+      0%   { transform: translate(0); }
+      20%  { transform: translate(-2px, 2px); }
+      40%  { transform: translate(2px, -2px); }
+      60%  { transform: translate(-1px, 1px); }
+      100% { transform: translate(0); }
+    }
+
+    /* ─── Логин ──────────────────────────────────────── */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.94);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s, visibility 0.6s;
+    }
+
+    .login-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .login-box {
+      background: #0a1a0a;
+      border: 1px solid #1a3f1a;
+      padding: clamp(1.8rem, 5vw, 2.6rem) clamp(1.6rem, 5vw, 3rem);
+      width: 100%;
+      max-width: 420px;
+      margin: 1rem;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    }
+
+    .login-box h2 {
+      color: var(--header-alt);
+      font-size: clamp(1.5rem, 5vw, 1.9rem);
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 1rem 0;
+      background: #000;
+      border: 1px solid #333;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1.05rem;
+    }
+
+    button {
+      background: #1a3f1a;
+      color: var(--header);
+      border: none;
+      padding: 0.85rem 1.8rem;
+      font-size: 1.05rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: #265226;
+      box-shadow: 0 0 14px rgba(173,255,47,0.4);
+    }
+
+    .fake-err {
+      color: var(--warning);
+      font-size: 0.95rem;
+      margin-top: 1.1rem;
+      min-height: 1.3em;
+    }
+
+    /* ─── Адаптивность ───────────────────────────────── */
+    @media (max-width: 680px) {
+      nav ul {
+        gap: 1.2rem;
+      }
+      nav a {
+        font-size: 0.97rem;
+      }
+      main {
+        padding: 0 1rem;
+        margin: 1.2rem auto;
+      }
+      .card {
+        padding: 1.2rem 1.4rem;
+        margin: 1.8rem 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      nav ul {
+        gap: 0.9rem;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      nav a {
+        text-align: center;
+        padding: 0.6rem;
+        font-size: 1.05rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="login" class="login-screen">
+  <div class="login-box">
+    <h2>Доступ к архиву</h2>
+    <p style="margin:1.3rem 0; opacity:0.8;">Уровень: Читатель</p>
+
+    <input type="text"     id="username" placeholder="Идентификатор" autocomplete="off"/>
+    <input type="password" id="password" placeholder="Код доступа"   autocomplete="off"/>
+
+    <button onclick="tryLogin()">Войти</button>
+    <div class="fake-err" id="loginMsg"></div>
+  </div>
+</div>
+
+<header>
+  <nav>
+    <ul>
+      <li><a class="nav-link active"    data-page="home">Главная</a></li>
+      <li><a class="nav-link" data-page="research">Исследования</a></li>
+      <li><a class="nav-link" data-page="notes">Заметки РАМ</a></li>
+      <li><a class="nav-link" data-page="gallery">Галерея</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="content">
+
+  <section id="home" class="page active">
+    <h1>Архив аномальных объектов</h1>
+    <div class="intro">
+      <p>РАМ Исследовательская Группа документирует редкие аномальные объекты класса «Глюк».</p>
+      <p>На 15 марта 2026 зафиксировано <span class="glitch">47</span> подтверждённых случаев.</p>
+      <p class="warning">Контакт > 5–8 минут — критическая угроза.</p>
+    </div>
+
+    <div class="card">
+      <h2>Цель проекта</h2>
+      <p>Сбор данных • поиск закономерностей • минимизация ущерба субъектам.</p>
+      <p class="error">Длительное воздействие вызывает необратимые изменения тканей.</p>
+    </div>
+
+    <div class="card">
+      <h2>Состояние архива</h2>
+      <p>Целостность данных: <span class="glitch">81.2%</span></p>
+      <p class="warning">Обнаружены признаки циклической перезаписи.</p>
+    </div>
+  </section>
+
+  <section id="research" class="page">
+    <h1>Исследования и наблюдения</h1>
+
+    <div class="card">
+      <h2>Объект #22 — «Шахматный фрагмент»</h2>
+      <p>09.02.2026 · контакт 11 мин 42 сек</p>
+      <p>Через \~51 ч — чёрно-фиолетовая шахматная текстура на пальцах обеих кистей.</p>
+      <p class="warning">Жалобы на искажение углов перспективы.</p>
+    </div>
+
+    <div class="card">
+      <h2>Протокол №12</h2>
+      <p>Поражение идёт от дистальных к проксимальным отделам.</p>
+      <p class="glitch">Искажение восприятия времени и пространства.</p>
+    </div>
+
+    <div class="warning">С 10 марта 2026 эксперименты с объектами Глюк класса приостановлены.</div>
+  </section>
+
+  <section id="notes" class="page">
+    <h1>Личные заметки — Рейлон А. М.</h1>
+
+    <div class="card">
+      <h2>03 марта 2026</h2>
+      <p>Субъект В-09 отказывается снимать рукава неделю. Под тканью узор. Говорит: «это уже часть меня». Голос изменился.</p>
+    </div>
+
+    <div class="card">
+      <h2>12 марта 2026</h2>
+      <p>Проснулся — правая кисть будто чужая. В темноте показалась текстура на запястье. Пульс 38. Совпадение.</p>
+      <p class="glitch">Совпадение.</p>
+    </div>
+
+    <div class="card">
+      <h2>?? ??.2026</h2>
+      <p class="glitch">Распространение быстрее прогноза. Записи веду пока могу.</p>
+    </div>
+  </section>
+
+  <section id="gallery" class="page">
+    <h1>Галерея / Материалы</h1>
+
+    <div class="card">
+      <h2>Объект #41</h2>
+      <p>[Изображение повреждено / отсутствует]</p>
+      <p class="glitch">chessboard artifact 0xFF3 ░▒▓█</p>
+    </div>
+
+    <div class="card warning">
+      <h2>ПРЕДУПРЕЖДЕНИЕ</h2>
+      <p>Просмотр без защиты запрещён.</p>
+      <p>Безопасное расстояние (теор.) — ≥ 3.4 м.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// Навигация SPA
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', function() {
+    document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+    this.classList.add('active');
+    document.getElementById(this.dataset.page).classList.add('active');
+
+    // микро-глюк при переходе
+    if (Math.random() < 0.22) {
+      document.body.style.opacity = '0.9';
+      setTimeout(() => document.body.style.opacity = '1', 260);
+    }
+  });
+});
+
+// Фейковая авторизация — только SpenserSD / Relhun
+function tryLogin() {
+  const user = document.getElementById('username').value.trim();
+  const pass = document.getElementById('password').value;
+  const msg  = document.getElementById('loginMsg');
+
+  msg.textContent = "Проверка идентификатора...";
+
+  setTimeout(() => {
+    if (user === "SpenserSD" && pass === "Relhun") {
+      document.getElementById('login').classList.add('hidden');
+    } else {
+      msg.textContent = Math.random() < 0.6
+        ? "Неверный идентификатор или код доступа"
+        : "ОШИБКА 0xA9 — сектор аутентификации повреждён";
+    }
+  }, 800 + Math.random() * 900);
+}
+
+// Случайные глюки (не слишком часто)
+setInterval(() => {
+  if (Math.random() < 0.26) {
+    const cards = document.querySelectorAll('.card');
+    if (cards.length) {
+      const target = cards[Math.floor(Math.random() * cards.length)];
+      target.classList.add('glitch');
+      setTimeout(() => target.classList.remove('glitch'), 1800 + Math.random() * 800);
+    }
+  }
+}, 32000 + Math.random() * 60000);
+</script>
+</body>
+</html>
