@@ -6,22 +6,16 @@
   <title>Архив аномальных объектов — РАМ Исследовательская Группа</title>
   <style>
     :root {
-      --bg:        #0a0a0a;
-      --text:       #7fff7f;
-      --header:     #adff2f;
+      --bg: #0a0a0a;
+      --text: #7fff7f;
+      --header: #adff2f;
       --header-alt: #ffff7f;
-      --warning:    #ff5555;
-      --glitch:     #ff00ff;
-      --card-bg:    #111111;
+      --warning: #ff5555;
+      --glitch: #ff00ff;
+      --card-bg: #111111;
       --card-border:#1a3f1a;
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
       background: var(--bg);
       color: var(--text);
@@ -30,7 +24,6 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
     header {
       background: #000;
       border-bottom: 1px solid #1a3f1a;
@@ -39,15 +32,18 @@
       top: 0;
       z-index: 100;
     }
-
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
     nav ul {
       list-style: none;
       display: flex;
       flex-wrap: wrap;
       gap: 1.8rem;
-      justify-content: center;
+      margin: 0;
     }
-
     nav a {
       color: #555;
       text-decoration: none;
@@ -58,13 +54,10 @@
       cursor: pointer;
       padding: 0.4rem 0;
     }
-
-    nav a:hover,
-    nav a.active {
+    nav a:hover, nav a.active {
       color: var(--header);
       text-shadow: 0 0 8px var(--header);
     }
-
     nav a::after {
       content: "";
       position: absolute;
@@ -75,26 +68,25 @@
       background: var(--header);
       transition: width 0.25s ease;
     }
-
-    nav a:hover::after,
-    nav a.active::after {
-      width: 100%;
+    nav a:hover::after, nav a.active::after { width: 100%; }
+    #logoutBtn {
+      background: #ff5555;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+      display: none;
     }
-
+    #logoutBtn:hover { background: #cc4444; }
     main {
       max-width: 1080px;
       margin: 2rem auto;
       padding: 0 1.2rem;
     }
-
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
+    .page { display: none; }
+    .page.active { display: block; }
     h1 {
       font-size: clamp(1.9rem, 5vw, 2.6rem);
       color: var(--header);
@@ -102,19 +94,12 @@
       text-shadow: 0 0 10px rgba(173,255,47,0.3);
       letter-spacing: 1.5px;
     }
-
     h2 {
       font-size: clamp(1.4rem, 4vw, 1.7rem);
       color: var(--header);
       margin: 1.8rem 0 0.9rem;
     }
-
-    .intro {
-      max-width: 760px;
-      margin: 0 auto 2.5rem;
-      font-size: clamp(1rem, 3vw, 1.12rem);
-    }
-
+    .intro { max-width: 760px; margin: 0 auto 2.5rem; font-size: clamp(1rem, 3vw, 1.12rem); }
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -124,18 +109,15 @@
       box-shadow: 0 0 16px rgba(0,0,0,0.88), inset 0 0 10px rgba(0,255,0,0.03);
       animation: subtleDrift 13s infinite alternate ease-in-out;
     }
-
     @keyframes subtleDrift {
       0%,100% { transform: translateY(0) skewX(0deg); }
-      50%     { transform: translateY(-1.5px) skewX(0.3deg); }
+      50% { transform: translateY(-1.5px) skewX(0.3deg); }
     }
-
     .card:hover {
       animation-play-state: paused;
       transform: translateY(-3px);
       box-shadow: 0 8px 32px rgba(173,255,47,0.09);
     }
-
     .warning, .error {
       color: var(--warning);
       font-weight: bold;
@@ -145,27 +127,21 @@
       background: rgba(255,85,85,0.06);
       animation: pulse 4.2s infinite;
     }
-
-    @keyframes pulse {
-      0%,100% { opacity: 0.7; }
-      50%     { opacity: 1; }
-    }
-
+    @keyframes pulse { 0%,100% { opacity: 0.7; } 50% { opacity: 1; } }
     .glitch {
       color: var(--glitch);
       animation: glitch 1.5s infinite;
       display: inline-block;
     }
-
     @keyframes glitch {
-      0%   { transform: translate(0); }
-      20%  { transform: translate(-2px, 2px); }
-      40%  { transform: translate(2px, -2px); }
-      60%  { transform: translate(-1px, 1px); }
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(2px, -2px); }
+      60% { transform: translate(-1px, 1px); }
       100% { transform: translate(0); }
     }
 
-    /* ─── Логин ──────────────────────────────────────── */
+    /* Логин */
     .login-screen {
       position: fixed;
       inset: 0;
@@ -177,13 +153,7 @@
       z-index: 9999;
       transition: opacity 0.6s, visibility 0.6s;
     }
-
-    .login-screen.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
+    .login-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     .login-box {
       background: #0a1a0a;
       border: 1px solid #1a3f1a;
@@ -193,14 +163,8 @@
       margin: 1rem;
       box-shadow: 0 0 40px rgba(0,0,0,0.8);
     }
-
-    .login-box h2 {
-      color: var(--header-alt);
-      font-size: clamp(1.5rem, 5vw, 1.9rem);
-    }
-
-    input[type="text"],
-    input[type="password"] {
+    .login-box h2 { color: var(--header-alt); font-size: clamp(1.5rem, 5vw, 1.9rem); }
+    input[type="text"], input[type="password"] {
       width: 100%;
       padding: 0.75rem;
       margin: 1rem 0;
@@ -210,7 +174,6 @@
       font-family: inherit;
       font-size: 1.05rem;
     }
-
     button {
       background: #1a3f1a;
       color: var(--header);
@@ -221,49 +184,75 @@
       margin-top: 1rem;
       transition: all 0.2s;
     }
+    button:hover { background: #265226; box-shadow: 0 0 14px rgba(173,255,47,0.4); }
+    .fake-err { color: var(--warning); font-size: 0.95rem; margin-top: 1.1rem; min-height: 1.3em; }
 
-    button:hover {
-      background: #265226;
-      box-shadow: 0 0 14px rgba(173,255,47,0.4);
+    /* Глюк уровня */
+    .level-text { transition: all 0.3s; }
+    .level-text.glitching {
+      animation: heavyGlitch 0.15s infinite;
+      color: #ff00ff !important;
+    }
+    @keyframes heavyGlitch {
+      0% { transform: translate(0); opacity: 1; }
+      20% { transform: translate(-4px, 3px) skew(8deg); opacity: 0.6; }
+      40% { transform: translate(4px, -3px) skew(-8deg); opacity: 0.8; }
+      60% { transform: translate(-3px, 4px); opacity: 0.5; }
+      80% { transform: translate(3px, -4px); opacity: 0.7; }
+      100% { transform: translate(0); opacity: 1; }
     }
 
-    .fake-err {
-      color: var(--warning);
-      font-size: 0.95rem;
-      margin-top: 1.1rem;
-      min-height: 1.3em;
+    /* Черновик */
+    .draft-card {
+      background: #0f0f0f;
+      border: 2px solid #1a3f1a;
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      position: relative;
     }
+    .progress-bar {
+      height: 12px;
+      background: #1a3f1a;
+      margin: 1rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #adff2f, #ffff7f);
+      width: 0%;
+      transition: width 0.4s linear;
+    }
+    .stage-text { font-size: 0.95rem; opacity: 0.85; margin: 0.5rem 0; }
+    .admin-only { display: none; }
+    .admin-mode .admin-only { display: block; }
 
-    /* ─── Адаптивность ───────────────────────────────── */
-    @media (max-width: 680px) {
-      nav ul {
-        gap: 1.2rem;
-      }
-      nav a {
-        font-size: 0.97rem;
-      }
-      main {
-        padding: 0 1rem;
-        margin: 1.2rem auto;
-      }
-      .card {
-        padding: 1.2rem 1.4rem;
-        margin: 1.8rem 0;
-      }
+    /* Модальное окно */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
     }
-
-    @media (max-width: 480px) {
-      nav ul {
-        gap: 0.9rem;
-        flex-direction: column;
-        align-items: stretch;
-      }
-      nav a {
-        text-align: center;
-        padding: 0.6rem;
-        font-size: 1.05rem;
-      }
+    .modal-content {
+      background: #111;
+      border: 2px solid #ff00ff;
+      padding: 2rem;
+      max-width: 520px;
+      width: 90%;
     }
+    .modal input, .modal textarea, .modal select {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.8rem 0;
+      background: #000;
+      border: 1px solid #333;
+      color: #7fff7f;
+    }
+    .admin-mode .card { border-color: #ff00ff; box-shadow: 0 0 25px #ff00ff; }
   </style>
 </head>
 <body>
@@ -271,11 +260,9 @@
 <div id="login" class="login-screen">
   <div class="login-box">
     <h2>Доступ к архиву</h2>
-    <p style="margin:1.3rem 0; opacity:0.8;">Уровень: Читатель</p>
-
-    <input type="text"     id="username" placeholder="Идентификатор" autocomplete="off"/>
-    <input type="password" id="password" placeholder="Код доступа"   autocomplete="off"/>
-
+    <p id="levelText" class="level-text" style="margin:1.3rem 0; opacity:0.8;">Уровень: Читатель</p>
+    <input type="text" id="username" placeholder="Идентификатор" autocomplete="off"/>
+    <input type="password" id="password" placeholder="Код доступа" autocomplete="off"/>
     <button onclick="tryLogin()">Войти</button>
     <div class="fake-err" id="loginMsg"></div>
   </div>
@@ -283,31 +270,30 @@
 
 <header>
   <nav>
-    <ul>
-      <li><a class="nav-link active"    data-page="home">Главная</a></li>
+    <ul id="navList">
+      <li><a class="nav-link active" data-page="home">Главная</a></li>
       <li><a class="nav-link" data-page="research">Исследования</a></li>
       <li><a class="nav-link" data-page="notes">Заметки РАМ</a></li>
       <li><a class="nav-link" data-page="gallery">Галерея</a></li>
+      <li id="draftTab" style="display:none;"><a class="nav-link" data-page="draft">Черновик</a></li>
     </ul>
+    <button id="logoutBtn" onclick="logout()">Выйти</button>
   </nav>
 </header>
 
 <main id="content">
-
   <section id="home" class="page active">
     <h1>Архив аномальных объектов</h1>
     <div class="intro">
       <p>РАМ Исследовательская Группа документирует редкие аномальные объекты класса «Глюк».</p>
-      <p>На 15 марта 2026 зафиксировано <span class="glitch">47</span> подтверждённых случаев.</p>
+      <p>На 21 марта 2026 зафиксировано <span class="glitch">47</span> подтверждённых случаев.</p>
       <p class="warning">Контакт > 5–8 минут — критическая угроза.</p>
     </div>
-
     <div class="card">
       <h2>Цель проекта</h2>
       <p>Сбор данных • поиск закономерностей • минимизация ущерба субъектам.</p>
       <p class="error">Длительное воздействие вызывает необратимые изменения тканей.</p>
     </div>
-
     <div class="card">
       <h2>Состояние архива</h2>
       <p>Целостность данных: <span class="glitch">81.2%</span></p>
@@ -317,37 +303,31 @@
 
   <section id="research" class="page">
     <h1>Исследования и наблюдения</h1>
-
     <div class="card">
       <h2>Объект #22 — «Шахматный фрагмент»</h2>
       <p>09.02.2026 · контакт 11 мин 42 сек</p>
-      <p>Через \~51 ч — чёрно-фиолетовая шахматная текстура на пальцах обеих кистей.</p>
+      <p>Через ~51 ч — чёрно-фиолетовая шахматная текстура на пальцах обеих кистей.</p>
       <p class="warning">Жалобы на искажение углов перспективы.</p>
     </div>
-
     <div class="card">
       <h2>Протокол №12</h2>
       <p>Поражение идёт от дистальных к проксимальным отделам.</p>
       <p class="glitch">Искажение восприятия времени и пространства.</p>
     </div>
-
     <div class="warning">С 10 марта 2026 эксперименты с объектами Глюк класса приостановлены.</div>
   </section>
 
   <section id="notes" class="page">
     <h1>Личные заметки — Рейлон А. М.</h1>
-
     <div class="card">
       <h2>03 марта 2026</h2>
       <p>Субъект В-09 отказывается снимать рукава неделю. Под тканью узор. Говорит: «это уже часть меня». Голос изменился.</p>
     </div>
-
     <div class="card">
       <h2>12 марта 2026</h2>
       <p>Проснулся — правая кисть будто чужая. В темноте показалась текстура на запястье. Пульс 38. Совпадение.</p>
       <p class="glitch">Совпадение.</p>
     </div>
-
     <div class="card">
       <h2>?? ??.2026</h2>
       <p class="glitch">Распространение быстрее прогноза. Записи веду пока могу.</p>
@@ -356,13 +336,11 @@
 
   <section id="gallery" class="page">
     <h1>Галерея / Материалы</h1>
-
     <div class="card">
       <h2>Объект #41</h2>
       <p>[Изображение повреждено / отсутствует]</p>
       <p class="glitch">chessboard artifact 0xFF3 ░▒▓█</p>
     </div>
-
     <div class="card warning">
       <h2>ПРЕДУПРЕЖДЕНИЕ</h2>
       <p>Просмотр без защиты запрещён.</p>
@@ -370,56 +348,597 @@
     </div>
   </section>
 
+  <section id="draft" class="page">
+    <h1 class="glitch">ЧЕРНОВИК — ЗАШИФРОВАННЫЕ ЗАПИСИ</h1>
+    <div class="card admin-only" style="text-align:center;">
+      <button onclick="showAddModal()" style="background:#ff00ff;color:#000;padding:1rem 2.5rem;font-size:1.1rem;">+ Добавить новую зашифрованную запись (Админ)</button>
+    </div>
+    <div id="draftsContainer"></div>
+  </section>
 </main>
 
+<div id="addModal" class="modal">
+  <div class="modal-content">
+    <h2 style="color:#ff00ff;">Добавить новую запись в Черновик</h2>
+    <input type="text" id="newTitle" placeholder="Заголовок записи (например: Запись #03)">
+    <textarea id="newContent" rows="8" placeholder="Содержимое записи (будет зашифровано при дешифровке)"></textarea>
+    <label style="color:#7fff7f;display:block;margin-top:1rem;">Время дешифровки (секунды):</label>
+    <input type="number" id="newDurationCustom" placeholder="Введите время в секундах" min="10" max="3600" value="300" style="width:100%;padding:0.8rem;margin:0.5rem 0;background:#000;border:1px solid #333;color:#7fff7f;">
+    <button onclick="addNewDraft()" style="background:#adff2f;color:#000;width:100%;margin-top:1rem;">Сохранить в Черновик</button>
+    <button onclick="hideAddModal()" style="margin-top:0.5rem;background:#333;width:100%;">Отмена</button>
+  </div>
+</div>
+
+<div id="glitchOverlay" class="glitch-overlay" style="display:none;"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
-// Навигация SPA
+// ==================== НАВИГАЦИЯ ====================
 document.querySelectorAll('.nav-link').forEach(link => {
   link.addEventListener('click', function() {
     document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-
     this.classList.add('active');
     document.getElementById(this.dataset.page).classList.add('active');
-
-    // микро-глюк при переходе
-    if (Math.random() < 0.22) {
-      document.body.style.opacity = '0.9';
-      setTimeout(() => document.body.style.opacity = '1', 260);
-    }
   });
 });
 
-// Фейковая авторизация — только SpenserSD / Relhun
+// ==================== АВТОРИЗАЦИЯ ====================
+const AUTH_KEY = 'ram_archive_auth';
+
+function checkAuth() {
+  const authData = localStorage.getItem(AUTH_KEY);
+  if (authData) {
+    const { user, type } = JSON.parse(authData);
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('logoutBtn').style.display = 'block';
+
+    // Показываем вкладку Черновик только для автора и админа
+    if (type === "author" || type === "admin") {
+      document.getElementById('draftTab').style.display = 'list-item';
+    }
+
+    if (type === "admin") {
+      document.body.classList.add('admin-mode');
+    }
+
+    return true;
+  }
+  return false;
+}
+
+function logout() {
+  localStorage.removeItem(AUTH_KEY);
+  document.getElementById('login').classList.remove('hidden');
+  document.body.classList.remove('admin-mode');
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('draftTab').style.display = 'none'; // скрываем вкладку при выходе
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('home').classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+  document.querySelector('.nav-link[data-page="home"]').classList.add('active');
+  // Возвращаем текст на "Читатель"
+  document.getElementById('levelText').textContent = 'Уровень: Читатель';
+  document.getElementById('levelText').classList.remove('glitching');
+}
+
 function tryLogin() {
   const user = document.getElementById('username').value.trim();
   const pass = document.getElementById('password').value;
-  const msg  = document.getElementById('loginMsg');
+  const msg = document.getElementById('loginMsg');
+  const levelText = document.getElementById('levelText');
 
   msg.textContent = "Проверка идентификатора...";
 
   setTimeout(() => {
+    let valid = false;
+    let authType = "reader";
+
     if (user === "SpenserSD" && pass === "Relhun") {
+      valid = true;
+      authType = "reader";
+    } 
+    else if (user === "RaylonAM" && pass === "RAM") {
+      valid = true;
+      authType = "author";
+      
+      // ОЧЕНЬ ГЛЮЧНАЯ АНИМАЦИЯ ПЕРЕХОДА
+      levelText.classList.add('glitching');
+      msg.textContent = "Инициализация...";
+      
+      const glitchSequence = [];
+      for (let g = 0; g < 25; g++) {
+        const rnd = Math.random();
+        if (rnd < 0.4) {
+          glitchSequence.push("Ур█вень: Чит█тель");
+        } else if (rnd < 0.7) {
+          glitchSequence.push("░Уровень: ░Читатель░");
+        } else if (rnd < 0.85) {
+          glitchSequence.push("ОШИБКА 0x█████");
+        } else {
+          glitchSequence.push("Уровень: █████████");
+        }
+      }
+      glitchSequence.push("Уровень: Читатель");
+      
+      let g = 0;
+      const glitchInt = setInterval(() => {
+        levelText.textContent = glitchSequence[g] || "Уровень: Читатель";
+        g++;
+        if (g >= glitchSequence.length) {
+          clearInterval(glitchInt);
+          levelText.textContent = "Уровень: Читатель";
+          
+          // ГЛАВНАЯ АНИМАЦИЯ ТРАНСФОРМАЦИИ
+          setTimeout(() => {
+            msg.textContent = "Проверка уровня...";
+            levelText.classList.add('glitching');
+            
+            const stages = ["Уровень: Ч","Уровень: ЧИТ","Уровень: ЧИТА","Уровень: ЧИТАТ","Уровень: ЧИТАТЕ","Уровень: ЧИТАТЕЛ","Уровень: ЧИТАТЕЛЯ","Уровень: ЧИТАТЕЛЯ░","Уровень: ░░░░░░░","Уровень: АВ░░░░░","Уровень: АВТ░░░","Уровень: АВТОР░░","Уровень: АВТОР"];
+            let i = 0;
+            const int = setInterval(() => {
+              levelText.textContent = stages[i] || "Уровень: Автор";
+              i++;
+              if (i >= stages.length) {
+                clearInterval(int);
+                levelText.textContent = "Уровень: Автор";
+                levelText.classList.remove('glitching');
+                msg.textContent = "Синхронизация...";
+                
+                // 5-СЕКУНДНАЯ ЗАДЕРЖКА ПЕРЕД ВХОДОМ
+                setTimeout(() => {
+                  msg.textContent = "";
+                  
+                  // ТЕПЕРЬ ВЫПОЛНЯЕМ ВХОД
+                  localStorage.setItem(AUTH_KEY, JSON.stringify({ user, type: authType }));
+                  document.getElementById('login').classList.add('hidden');
+                  document.getElementById('logoutBtn').style.display = 'block';
+
+                  if (authType === "author" || authType === "admin") {
+                    document.getElementById('draftTab').style.display = 'list-item';
+                  }
+
+                  if (authType === "admin") {
+                    document.body.classList.add('admin-mode');
+                  }
+                }, 5000);
+              }
+            }, 140);
+          }, 600);
+        }
+      }, 80);
+      
+      return; // Выходим, чтобы не выполнять обычный код входа ниже
+    } 
+    else if (user === "Stroheim" && pass === "GermanSBR") {
+      valid = true;
+      authType = "admin";
+    }
+
+    if (valid) {
+      localStorage.setItem(AUTH_KEY, JSON.stringify({ user, type: authType }));
       document.getElementById('login').classList.add('hidden');
+      document.getElementById('logoutBtn').style.display = 'block';
+
+      // Показ вкладки Черновик
+      if (authType === "author" || authType === "admin") {
+        document.getElementById('draftTab').style.display = 'list-item';
+      }
+
+      if (authType === "admin") {
+        document.body.classList.add('admin-mode');
+      }
     } else {
-      msg.textContent = Math.random() < 0.6
-        ? "Неверный идентификатор или код доступа"
-        : "ОШИБКА 0xA9 — сектор аутентификации повреждён";
+      msg.textContent = Math.random() < 0.6 ? "Неверный идентификатор или код доступа" : "ОШИБКА 0xA9 — сектор аутентификации повреждён";
     }
   }, 800 + Math.random() * 900);
 }
 
-// Случайные глюки (не слишком часто)
-setInterval(() => {
-  if (Math.random() < 0.26) {
-    const cards = document.querySelectorAll('.card');
-    if (cards.length) {
-      const target = cards[Math.floor(Math.random() * cards.length)];
-      target.classList.add('glitch');
-      setTimeout(() => target.classList.remove('glitch'), 1800 + Math.random() * 800);
-    }
+// ==================== ЧЕРНОВИК ====================
+const GLITCH_CHARS = '█▒▓░╬╩╦╠╣┼═║┌┐└┐┤├┘┬┴▲▼◄►◆◇★☆•‣›«»°±¹²³©®™¢£¤¥¦§¨ª«¬­®¯´¶·¹º»¼½¾¿÷×‟';
+
+function maskedFromContent(content) {
+  if (!content) return '██████';
+  return content.split('').map(ch => ch === '\n' ? '\n' : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]).join('');
+}
+
+function loadDrafts() {
+  const authData = localStorage.getItem(AUTH_KEY);
+  if (!authData) return [];
+  
+  const key = 'ram_drafts';
+  const drafts = localStorage.getItem(key);
+  const arr = drafts ? JSON.parse(drafts) : [];
+  // ensure each draft has an id and revealed flag
+  let changed = false;
+  for (let d of arr) {
+    if (!d.id) { d.id = 'd_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); changed = true; }
+    if (typeof d.revealed === 'undefined') { d.revealed = false; changed = true; }
   }
-}, 32000 + Math.random() * 60000);
+  if (changed) localStorage.setItem(key, JSON.stringify(arr));
+  return arr;
+}
+
+function saveDrafts(drafts) {
+  const key = 'ram_drafts';
+  localStorage.setItem(key, JSON.stringify(drafts));
+}
+
+function getEncryptedText(text, progress) {
+  // progress: 0-25 (полный глюк), 25-50 (25%), 50-75 (50%), 75-100 (75%+)
+  const result = text.split('').map((char, i) => {
+    if (progress >= 75) {
+      // 75% - показываем весь текст
+      return char;
+    } else if (progress >= 50) {
+      // 50% - показываем ~75% букв
+      return Math.random() < 0.75 ? char : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+    } else if (progress >= 25) {
+      // 25% - показываем ~50% букв
+      return Math.random() < 0.5 ? char : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+    } else {
+      // 0-25% - полный глюк
+      return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+    }
+  }).join('');
+  return result;
+}
+
+function renderDrafts() {
+  const container = document.getElementById('draftsContainer');
+  if (!container) return;
+  
+  const drafts = loadDrafts();
+  container.innerHTML = '';
+  // determine current user to apply visibility rules
+  const authData = localStorage.getItem(AUTH_KEY);
+  const currentUser = authData ? JSON.parse(authData).user : null;
+  // compute visibility: for RaylonAM show all revealed + earliest unrevealed; for others show all
+  let firstUnrevealed = -1;
+  if (currentUser === 'RaylonAM') {
+    firstUnrevealed = drafts.findIndex(d => !d.revealed);
+  }
+  
+  if (drafts.length === 0) {
+    container.innerHTML = '<div class="card" style="opacity:0.6;"><p>Нет зашифрованных записей.</p></div>';
+    return;
+  }
+  
+  drafts.forEach((draft, index) => {
+    // compute visibility per draft
+    let visible = true;
+    if (currentUser === 'RaylonAM') {
+      if (!draft.revealed) {
+        visible = (index === firstUnrevealed);
+      } else {
+        visible = true;
+      }
+    }
+    if (!visible) return;
+    const card = document.createElement('div');
+    card.className = 'draft-card';
+    card.setAttribute('data-id', draft.id);
+    
+    const authData = localStorage.getItem(AUTH_KEY);
+    const userType = authData ? JSON.parse(authData).type : 'reader';
+    
+    let adminActions = '';
+    if (userType === 'admin') {
+      adminActions = `<button onclick="deleteDraft(${index})" style="background:#ff5555;margin-top:1rem;width:100%;">Удалить запись</button>`;
+    }
+    
+    card.innerHTML = `
+      <h2 style="color:#ff00ff;">${draft.title}</h2>
+      <p id="time-${draft.id}" style="color:#7fff7f;margin-bottom:0.4rem;">Время: ${draft.duration}s</p>
+      <p id="percent-${draft.id}" style="color:#adff2f;margin-bottom:0.6rem;">Прогресс: 0%</p>
+      <p id="encrypted-${draft.id}" style="font-style:italic;color:#999;margin-bottom:1rem;user-select:none;white-space:pre-wrap;"></p>
+      <div class="progress-bar" id="progress-${draft.id}">
+        <div class="progress-fill" style="width:0%;"></div>
+      </div>
+      <button onclick="startDecryptionById('${draft.id}')" style="width:100%;" id="decrypt-btn-${draft.id}">Начать дешифровку</button>
+      <div id="decrypted-${draft.id}" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid #1a3f1a;"><p><strong>ДЕШИФРОВАНО:</strong></p><p class="decrypted-para" style="white-space:pre-wrap;color:#adff2f;"></p></div>
+      ${adminActions}
+    `;
+
+    container.appendChild(card);
+
+    // set encrypted/decrypted text via textContent to preserve newlines and avoid HTML injection
+    const encEl = document.getElementById(`encrypted-${draft.id}`);
+    const decBlock = document.getElementById(`decrypted-${draft.id}`);
+    const decPara = decBlock ? decBlock.querySelector('.decrypted-para') : null;
+    if (draft.revealed) {
+      if (encEl) encEl.textContent = draft.content;
+      if (decPara) decPara.textContent = draft.content;
+      if (decBlock) decBlock.style.display = 'block';
+      const timeEl = document.getElementById(`time-${draft.id}`);
+      const percentEl = document.getElementById(`percent-${draft.id}`);
+      if (timeEl) timeEl.textContent = 'Время: дешифровано';
+      if (percentEl) percentEl.textContent = 'Прогресс: 100%';
+      // hide progress and button
+      const prog = document.getElementById(`progress-${draft.id}`);
+      const btn = document.getElementById(`decrypt-btn-${draft.id}`);
+      if (prog) prog.style.display = 'none';
+      if (btn) btn.style.display = 'none';
+    } else {
+      if (encEl) encEl.textContent = maskedFromContent(draft.content);
+      if (decPara) decPara.textContent = draft.content; // keep stored but hidden
+      const percentEl = document.getElementById(`percent-${draft.id}`);
+      if (percentEl) percentEl.textContent = 'Прогресс: 0%';
+    }
+    return;
+    
+    container.appendChild(card);
+  });
+}
+
+// Хранилище для активных интервалов дешифровки
+// каждый ключ — draft.id, значение: { intervalId, startTime, duration }
+const activeDecryptions = {};
+
+function anyActiveDecryptions() {
+  return Object.keys(activeDecryptions).length > 0;
+}
+
+function startDecryptionById(id) {
+  const drafts = loadDrafts();
+  const draftIndex = drafts.findIndex(d => d.id === id);
+  if (draftIndex === -1) return;
+  const draft = drafts[draftIndex];
+
+  // если уже идёт дешифровка для этого id — ничего не делаем
+  if (activeDecryptions[id]) return;
+
+  const encryptedText = document.getElementById(`encrypted-${id}`);
+  const progressBar = document.querySelector(`#progress-${id} .progress-fill`);
+  const progressContainer = document.getElementById(`progress-${id}`);
+  const button = document.getElementById(`decrypt-btn-${id}`);
+  const decryptedContent = document.getElementById(`decrypted-${id}`);
+
+  if (!encryptedText || !progressBar || !button) return;
+
+  // блокируем отображение новых записей до завершения этой дешифровки
+  button.disabled = true;
+  button.textContent = 'Дешифровка...';
+
+  const duration = draft.duration * 1000;
+  const startTime = Date.now();
+
+  const intervalId = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min((elapsed / duration) * 100, 100);
+    progressBar.style.width = progress + '%';
+    encryptedText.textContent = getEncryptedText(draft.content, progress);
+    const percentEl = document.getElementById(`percent-${id}`);
+    if (percentEl) percentEl.textContent = `Прогресс: ${Math.floor(progress)}%`;
+
+    // update countdown
+    const timeEl = document.getElementById(`time-${id}`);
+    const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
+    if (timeEl) {
+      if (progress < 100) timeEl.textContent = `Время: ${remaining}s`;
+      else timeEl.textContent = 'Время: дешифровано';
+    }
+
+    // на стадиях 25/50/75 — буквы активнее становятся (getEncryptedText учитывает)
+    if (progress >= 100) {
+      clearInterval(intervalId);
+      delete activeDecryptions[id];
+
+      // помечаем запись как расшифрованную и сохраняем
+      const draftsAll = loadDrafts();
+      const target = draftsAll.find(d => d.id === id);
+      if (target) {
+        target.revealed = true;
+        saveDrafts(draftsAll);
+        if (FIREBASE_ENABLED) {
+          updateRemoteDraft(id, { revealed: true }).catch(e => console.warn('updateRemoteDraft failed', e));
+        }
+      }
+
+      // update UI: show final content, hide progress and button
+      button.style.display = 'none';
+      if (encryptedText) encryptedText.textContent = draft.content;
+      if (encryptedText) encryptedText.style.opacity = '0.5';
+      if (progressContainer) progressContainer.style.display = 'none';
+      if (decryptedContent) decryptedContent.style.display = 'block';
+      if (percentEl) percentEl.textContent = 'Прогресс: 100%';
+
+      // просто перерисуем: renderDrafts() вычислит следующую видимую запись
+      renderDrafts();
+    }
+  }, 50);
+
+  activeDecryptions[id] = { intervalId, startTime, duration };
+}
+
+function deleteDraft(index) {
+  const drafts = loadDrafts();
+  const target = drafts[index];
+  if (target && activeDecryptions[target.id]) {
+    try { clearInterval(activeDecryptions[target.id].intervalId); } catch(e){}
+    delete activeDecryptions[target.id];
+  }
+  drafts.splice(index, 1);
+  saveDrafts(drafts);
+  if (target && FIREBASE_ENABLED) {
+    removeRemoteDraft(target.id).catch(e => console.warn('removeRemoteDraft failed', e));
+  }
+  renderDrafts();
+}
+
+function showAddModal() {
+  document.getElementById('addModal').style.display = 'flex';
+}
+
+function hideAddModal() {
+  document.getElementById('addModal').style.display = 'none';
+  document.getElementById('newTitle').value = '';
+  document.getElementById('newContent').value = '';
+  document.getElementById('newDurationCustom').value = '300';
+}
+
+function addNewDraft() {
+  const title = document.getElementById('newTitle').value.trim();
+  const content = document.getElementById('newContent').value.trim();
+  const duration = parseInt(document.getElementById('newDurationCustom').value);
+  
+  if (!title || !content) {
+    alert('Заполните все поля!');
+    return;
+  }
+  
+  if (duration < 10 || duration > 3600) {
+    alert('Время должно быть от 10 до 3600 секунд!');
+    return;
+  }
+  
+  const drafts = loadDrafts();
+  const id = 'd_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  // new drafts stored as unrevealed; visibility is computed at render time per user
+  const newDraft = { id, title, content, duration, revealed: false, createdAt: Date.now() };
+  drafts.push(newDraft);
+  saveDrafts(drafts);
+  if (FIREBASE_ENABLED) {
+    setRemoteDraft(newDraft).catch(e => console.warn('setRemoteDraft failed', e));
+  }
+  
+  hideAddModal();
+  renderDrafts();
+}
+
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+window.onload = () => {
+  checkAuth();
+  loadDrafts();
+  renderDrafts();
+
+  setInterval(() => {
+    if (Math.random() < 0.26) {
+      const cards = document.querySelectorAll('.card');
+      if (cards.length) {
+        const target = cards[Math.floor(Math.random() * cards.length)];
+        target.classList.add('glitch');
+        setTimeout(() => target.classList.remove('glitch'), 1800 + Math.random() * 800);
+      }
+    }
+  }, 32000 + Math.random() * 60000);
+
+  setInterval(() => {
+    if (document.getElementById('draft').classList.contains('active')) {
+      // не перерисовываем список, если идёт активная дешифровка
+      if (!anyActiveDecryptions()) {
+        renderDrafts();
+      }
+    }
+  }, 1000);
+};
+// Вставьте свою конфигурацию Firebase ниже и раскомментируйте вызов initFirebase(FIREBASE_CONFIG);
+// Чтобы синхронизация заработала, создайте проект в Firebase, включите Firestore и скопируйте конфиг.
+// CDN (compat) используется для простоты: https://firebase.google.com/docs/web/setup#cdn
+// Пример: откройте https://console.firebase.google.com → Project settings → SDK
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyC7f0V6ttAkD6-Q93exGWvWZ-JMa4qnFoo",
+  authDomain: "voltsmpseason1.firebaseapp.com",
+  projectId: "voltsmpseason1",
+  storageBucket: "voltsmpseason1.firebasestorage.app",
+  messagingSenderId: "458325803123",
+  appId: "1:458325803123:web:7f93ed2622b0a564deaa06"
+};
+// initFirebase will be called after helper functions are declared (below)
+
+let FIREBASE_ENABLED = false;
+let firebaseApp = null;
+let firebaseDB = null;
+
+function initFirebase(config) {
+  if (!window.firebase) {
+    console.warn('Firebase SDK not loaded. Add script tags for firebase-app-compat and firebase-firestore-compat in the HTML.');
+    return;
+  }
+  if (!config || !config.apiKey) { console.warn('Provide valid FIREBASE_CONFIG'); return; }
+  try {
+    firebaseApp = firebase.initializeApp(config);
+    firebaseDB = firebase.firestore();
+    FIREBASE_ENABLED = true;
+
+    // realtime listener: keep localStorage in sync and re-render
+    firebaseDB.collection('drafts').orderBy('createdAt', 'asc')
+      .onSnapshot(snap => {
+        const drafts = [];
+        snap.forEach(doc => {
+          const data = doc.data();
+          drafts.push({
+            id: doc.id,
+            title: data.title,
+            content: data.content,
+            duration: data.duration,
+            revealed: !!data.revealed,
+            createdAt: data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : (data.createdAt || Date.now())
+          });
+        });
+        localStorage.setItem('ram_drafts', JSON.stringify(drafts));
+        renderDrafts();
+      }, err => console.error('Firestore onSnapshot error', err));
+  } catch (e) {
+    console.error('Firebase init error', e);
+  }
+}
+
+// Remote helpers
+function setRemoteDraft(draft) {
+  if (!FIREBASE_ENABLED) return Promise.resolve();
+  const docRef = firebaseDB.collection('drafts').doc(draft.id);
+  return docRef.set({ title: draft.title, content: draft.content, duration: draft.duration, revealed: !!draft.revealed, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+}
+
+function removeRemoteDraft(id) {
+  if (!FIREBASE_ENABLED) return Promise.resolve();
+  return firebaseDB.collection('drafts').doc(id).delete();
+}
+
+function updateRemoteDraft(id, updates) {
+  if (!FIREBASE_ENABLED) return Promise.resolve();
+  return firebaseDB.collection('drafts').doc(id).update(updates);
+}
+
+// После определения helper-функций можно вызвать инициализацию.
+// (вызов перемещён в конец скрипта ниже)
+
+// NOTE: Include Firebase SDKs before this script by adding these CDN URLs as script tags in your HTML:
+// https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js
+// https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js
+// After including the SDKs, call `initFirebase(FIREBASE_CONFIG)` (uncomment) to enable Firestore sync.
+// ==================== FIREBASE ИНИЦИАЛИЗАЦИЯ ====================
+// Вызов initFirebase ТОЛЬКО ПОСЛЕ того, как все функции определены
+// Убедитесь, что CDN теги выше в <head> уже загрузили Firebase SDK
+(function() {
+  // Небольшая задержка, чтобы убедиться, что Firebase загружен
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        try {
+          initFirebase(FIREBASE_CONFIG);
+          console.log('✓ Firebase инициализирован успешно');
+        } catch (e) {
+          console.error('✗ Ошибка инициализации Firebase:', e.message);
+        }
+      }, 100);
+    });
+  } else {
+    setTimeout(() => {
+      try {
+        initFirebase(FIREBASE_CONFIG);
+        console.log('✓ Firebase инициализирован успешно');
+      } catch (e) {
+        console.error('✗ Ошибка инициализации Firebase:', e.message);
+      }
+    }, 100);
+  }
+})();
+
+// ==================== КОНЕЦ СКРИПТА ====================
 </script>
 </body>
 </html>
