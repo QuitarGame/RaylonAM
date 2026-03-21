@@ -363,7 +363,7 @@
     <input type="text" id="newTitle" placeholder="Заголовок записи (например: Запись #03)">
     <textarea id="newContent" rows="8" placeholder="Содержимое записи (будет зашифровано при дешифровке)"></textarea>
     <label style="color:#7fff7f;display:block;margin-top:1rem;">Время дешифровки (секунды):</label>
-    <input type="number" id="newDurationCustom" placeholder="Введите время в секундах" min="10" max="3600" value="300" style="width:100%;padding:0.8rem;margin:0.5rem 0;background:#000;border:1px solid #333;color:#7fff7f;">
+    <input type="number" id="newDurationCustom" placeholder="Введите время в секундах (макс. 30 дней)" min="10" max="2592000" value="300" style="width:100%;padding:0.8rem;margin:0.5rem 0;background:#000;border:1px solid #333;color:#7fff7f;">
     <button onclick="addNewDraft()" style="background:#adff2f;color:#000;width:100%;margin-top:1rem;">Сохранить в Черновик</button>
     <button onclick="hideAddModal()" style="margin-top:0.5rem;background:#333;width:100%;">Отмена</button>
   </div>
@@ -539,6 +539,36 @@ function tryLogin() {
 // ==================== ЧЕРНОВИК ====================
 const GLITCH_CHARS = '█▒▓░╬╩╦╠╣┼═║┌┐└┐┤├┘┬┴▲▼◄►◆◇★☆•‣›«»°±¹²³©®™¢£¤¥¦§¨ª«¬­®¯´¶·¹º»¼½¾¿÷×‟';
 
+// Функция для преобразования секунд в читаемый формат
+function formatDuration(seconds) {
+  if (!seconds || seconds <= 0) return '0 секунд';
+  
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  
+  const parts = [];
+  if (days > 0) {
+    const dayLabel = days === 1 ? 'день' : (days < 5 ? 'дня' : 'дней');
+    parts.push(`${days} ${dayLabel}`);
+  }
+  if (hours > 0) {
+    const hourLabel = hours === 1 ? 'час' : (hours < 5 ? 'часа' : 'часов');
+    parts.push(`${hours} ${hourLabel}`);
+  }
+  if (minutes > 0) {
+    const minLabel = minutes === 1 ? 'минута' : (minutes < 5 ? 'минуты' : 'минут');
+    parts.push(`${minutes} ${minLabel}`);
+  }
+  if (secs > 0) {
+    const secLabel = secs === 1 ? 'секунда' : (secs < 5 ? 'секунды' : 'секунд');
+    parts.push(`${secs} ${secLabel}`);
+  }
+  
+  return parts.join(', ');
+}
+
 function maskedFromContent(content) {
   if (!content) return '██████';
   return content.split('').map(ch => ch === '\n' ? '\n' : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]).join('');
@@ -631,7 +661,7 @@ function renderDrafts() {
     
     card.innerHTML = `
       <h2 style="color:#ff00ff;">${draft.title}</h2>
-      <p id="time-${draft.id}" style="color:#7fff7f;margin-bottom:0.4rem;">Время: ${draft.duration}s</p>
+      <p id="time-${draft.id}" style="color:#7fff7f;margin-bottom:0.4rem;">Время: <span id="duration-label-${draft.id}"></span></p>
       <p id="percent-${draft.id}" style="color:#adff2f;margin-bottom:0.6rem;">Прогресс: 0%</p>
       <p id="encrypted-${draft.id}" style="font-style:italic;color:#999;margin-bottom:1rem;user-select:none;white-space:pre-wrap;"></p>
       <div class="progress-bar" id="progress-${draft.id}">
@@ -652,9 +682,9 @@ function renderDrafts() {
       if (encEl) encEl.textContent = draft.content;
       if (decPara) decPara.textContent = draft.content;
       if (decBlock) decBlock.style.display = 'block';
-      const timeEl = document.getElementById(`time-${draft.id}`);
+      const durationLabelEl = document.getElementById(`duration-label-${draft.id}`);
       const percentEl = document.getElementById(`percent-${draft.id}`);
-      if (timeEl) timeEl.textContent = 'Время: дешифровано';
+      if (durationLabelEl) durationLabelEl.textContent = 'дешифровано';
       if (percentEl) percentEl.textContent = 'Прогресс: 100%';
       // hide progress and button
       const prog = document.getElementById(`progress-${draft.id}`);
@@ -664,7 +694,9 @@ function renderDrafts() {
     } else {
       if (encEl) encEl.textContent = maskedFromContent(draft.content);
       if (decPara) decPara.textContent = draft.content; // keep stored but hidden
+      const durationLabelEl = document.getElementById(`duration-label-${draft.id}`);
       const percentEl = document.getElementById(`percent-${draft.id}`);
+      if (durationLabelEl) durationLabelEl.textContent = formatDuration(draft.duration);
       if (percentEl) percentEl.textContent = 'Прогресс: 0%';
     }
     return;
@@ -714,11 +746,11 @@ function startDecryptionById(id) {
     if (percentEl) percentEl.textContent = `Прогресс: ${Math.floor(progress)}%`;
 
     // update countdown
-    const timeEl = document.getElementById(`time-${id}`);
+    const durationLabelEl = document.getElementById(`duration-label-${id}`);
     const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
-    if (timeEl) {
-      if (progress < 100) timeEl.textContent = `Время: ${remaining}s`;
-      else timeEl.textContent = 'Время: дешифровано';
+    if (durationLabelEl) {
+      if (progress < 100) durationLabelEl.textContent = formatDuration(remaining);
+      else durationLabelEl.textContent = 'дешифровано';
     }
 
     // на стадиях 25/50/75 — буквы активнее становятся (getEncryptedText учитывает)
@@ -789,8 +821,9 @@ function addNewDraft() {
     return;
   }
   
-  if (duration < 10 || duration > 3600) {
-    alert('Время должно быть от 10 до 3600 секунд!');
+  const MAX_DURATION = 2592000; // 30 дней в секундах
+  if (duration < 10 || duration > MAX_DURATION) {
+    alert(`Время должно быть от 10 секунд до ${formatDuration(MAX_DURATION)}!`);
     return;
   }
   
