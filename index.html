@@ -709,11 +709,44 @@ function renderDrafts() {
 // каждый ключ — draft.id, значение: { intervalId, startTime, duration }
 const activeDecryptions = {};
 
+// Хранилище для отслеживания удалённых дешифровок (избежание дублей)
+const remoteDecryptionsInProgress = {};
+
 function anyActiveDecryptions() {
   return Object.keys(activeDecryptions).length > 0;
 }
 
-function startDecryptionById(id) {
+// Функция для обработки изменений дешифровки из Firestore
+function handleRemoteDecryptionStateChange(draftId, decryptionStartedAt, decryptionStartedBy) {
+  // если это уже идёт локально — пропускаем
+  if (activeDecryptions[draftId]) return;
+  
+  // если дешифровка завершилась — очищаем
+  if (!decryptionStartedAt) {
+    delete remoteDecryptionsInProgress[draftId];
+    return;
+  }
+  
+  // если уже слушаем это удалённое событие — пропускаем
+  if (remoteDecryptionsInProgress[draftId]) return;
+  
+  // конвертируем ISO timestamp в миллисекунды
+  const startTimeMs = new Date(decryptionStartedAt).getTime();
+  const nowMs = Date.now();
+  
+  // проверяем, что это не прошлое событие (валидность)
+  if (nowMs - startTimeMs > 60000) return; // игнорируем события старше 1 минуты
+  
+  // отмечаем, что мы уже запустили эту дешифровку
+  remoteDecryptionsInProgress[draftId] = true;
+  
+  console.log(`↔ Синхронизация дешифровки ${draftId} (начата ${decryptionStartedBy})`);
+  
+  // запускаем дешифровку с передачей времени начала
+  startDecryptionById(draftId, startTimeMs);
+}
+
+function startDecryptionById(id, remoteStartTime = null) {
   const drafts = loadDrafts();
   const draftIndex = drafts.findIndex(d => d.id === id);
   if (draftIndex === -1) return;
@@ -735,7 +768,18 @@ function startDecryptionById(id) {
   button.textContent = 'Дешифровка...';
 
   const duration = draft.duration * 1000;
-  const startTime = Date.now();
+  // если remoteStartTime передан (от другого пользователя) — синхронизируемся с ним
+  const startTime = remoteStartTime || Date.now();
+  
+  // сохраняем в Firebase, что дешифровка началась (только если это не синхронизация с удалённого)
+  if (!remoteStartTime && FIREBASE_ENABLED) {
+    const authData = localStorage.getItem(AUTH_KEY);
+    const currentUser = authData ? JSON.parse(authData).user : 'Unknown';
+    updateRemoteDraft(id, { 
+      decryptionStartedAt: new Date().toISOString(),
+      decryptionStartedBy: currentUser
+    }).catch(e => console.warn('Failed to update decryption state', e));
+  }
 
   const intervalId = setInterval(() => {
     const elapsed = Date.now() - startTime;
@@ -765,7 +809,11 @@ function startDecryptionById(id) {
         target.revealed = true;
         saveDrafts(draftsAll);
         if (FIREBASE_ENABLED) {
-          updateRemoteDraft(id, { revealed: true }).catch(e => console.warn('updateRemoteDraft failed', e));
+          updateRemoteDraft(id, { 
+            revealed: true,
+            decryptionStartedAt: null,
+            decryptionStartedBy: null
+          }).catch(e => console.warn('updateRemoteDraft failed', e));
         }
       }
 
@@ -791,6 +839,9 @@ function deleteDraft(index) {
   if (target && activeDecryptions[target.id]) {
     try { clearInterval(activeDecryptions[target.id].intervalId); } catch(e){}
     delete activeDecryptions[target.id];
+  }
+  if (target) {
+    delete remoteDecryptionsInProgress[target.id];
   }
   drafts.splice(index, 1);
   saveDrafts(drafts);
@@ -902,14 +953,22 @@ function initFirebase(config) {
         const drafts = [];
         snap.forEach(doc => {
           const data = doc.data();
-          drafts.push({
+          const draft = {
             id: doc.id,
             title: data.title,
             content: data.content,
             duration: data.duration,
             revealed: !!data.revealed,
-            createdAt: data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : (data.createdAt || Date.now())
-          });
+            createdAt: data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : (data.createdAt || Date.now()),
+            decryptionStartedAt: data.decryptionStartedAt || null,
+            decryptionStartedBy: data.decryptionStartedBy || null
+          };
+          drafts.push(draft);
+          
+          // СИНХРОНИЗАЦИЯ ДЕШИФРОВКИ: если на удалённом документе идёт дешифровка и она не завершена
+          if (data.decryptionStartedAt && !data.revealed) {
+            handleRemoteDecryptionStateChange(doc.id, data.decryptionStartedAt, data.decryptionStartedBy);
+          }
         });
         localStorage.setItem('ram_drafts', JSON.stringify(drafts));
         renderDrafts();
