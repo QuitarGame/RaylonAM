@@ -597,22 +597,41 @@ function saveDrafts(drafts) {
 }
 
 function getEncryptedText(text, progress) {
-  // progress: 0-25 (полный глюк), 25-50 (25%), 50-75 (50%), 75-100 (75%+)
-  const result = text.split('').map((char, i) => {
+  // progress: 0-100 (процент завершения)
+  // На разных стадиях раскрываем символы:
+  // 0-25%: полный глюк (0% раскрыто)
+  // 25-50%: ~25% букв видны
+  // 50-75%: ~50% букв видны
+  // 75-100%: ~75% букв видны + финал показываем всё
+  
+  const chars = text.split('');
+  const result = chars.map((char, index) => {
+    if (char === '\n') return '\n'; // новые строки не трогаем
+    
+    let revealProbability = 0;
+    
     if (progress >= 75) {
-      // 75% - показываем весь текст
-      return char;
+      // 75-100%: показываем ~75% букв (с увеличением к концу)
+      revealProbability = 0.75 + (progress - 75) / (100 - 75) * 0.25; // 75% → 100%
     } else if (progress >= 50) {
-      // 50% - показываем ~75% букв
-      return Math.random() < 0.75 ? char : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+      // 50-75%: показываем ~50% букв
+      revealProbability = 0.5 + (progress - 50) / (75 - 50) * 0.25; // 50% → 75%
     } else if (progress >= 25) {
-      // 25% - показываем ~50% букв
-      return Math.random() < 0.5 ? char : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+      // 25-50%: показываем ~25% букв
+      revealProbability = 0.25 + (progress - 25) / (50 - 25) * 0.25; // 25% → 50%
     } else {
-      // 0-25% - полный глюк
-      return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+      // 0-25%: полный глюк
+      revealProbability = (progress / 25) * 0.25; // 0% → 25%
     }
+    
+    // используем индекс символа для "случайности" чтобы один и тот же символ показывался одинаково
+    // но при этом для разных символов было "случайно" выглядит
+    const seed = (index * 73 + Math.floor(progress)) % 1000;
+    const random = (seed / 1000 + (Math.sin(index) + 1) / 2) % 1;
+    
+    return random < revealProbability ? char : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
   }).join('');
+  
   return result;
 }
 
@@ -696,6 +715,18 @@ function renderDrafts() {
       if (decPara) decPara.textContent = draft.content; // keep stored but hidden
       const durationLabelEl = document.getElementById(`duration-label-${draft.id}`);
       const percentEl = document.getElementById(`percent-${draft.id}`);
+      const btn = document.getElementById(`decrypt-btn-${draft.id}`);
+      const prog = document.getElementById(`progress-${draft.id}`);
+      
+      // ЕСЛИ ДЕШИФРОВКА УЖЕ ИДЁТ (удалённо или локально) — скрываем кнопку
+      if (draft.decryptionStartedAt || activeDecryptions[draft.id]) {
+        if (btn) btn.style.display = 'none';
+        if (prog) prog.style.display = 'block';
+      } else {
+        if (btn) btn.style.display = 'block';
+        if (prog) prog.style.display = 'none';
+      }
+      
       if (durationLabelEl) durationLabelEl.textContent = formatDuration(draft.duration);
       if (percentEl) percentEl.textContent = 'Прогресс: 0%';
     }
@@ -911,8 +942,10 @@ window.onload = () => {
 
   setInterval(() => {
     if (document.getElementById('draft').classList.contains('active')) {
-      // не перерисовываем список, если идёт активная дешифровка
-      if (!anyActiveDecryptions()) {
+      // не перерисовываем список, если идёт активная дешифровка (локальная или удалённая)
+      const hasActiveDecryption = anyActiveDecryptions() || 
+                                   loadDrafts().some(d => d.decryptionStartedAt && !d.revealed);
+      if (!hasActiveDecryption) {
         renderDrafts();
       }
     }
