@@ -968,8 +968,11 @@ window.onload = () => {
   loadDrafts();
   renderDrafts();
   
-  // восстанавливаем активные дешифровки (если браузер был закрыт)
-  restoreActiveDecryptions();
+  // восстанавливаем активные дешифровки ТОЛЬКО если Firebase не включён
+  // (если Firebase включён, restore будет вызван из onSnapshot)
+  if (!FIREBASE_ENABLED) {
+    setTimeout(() => restoreActiveDecryptions(), 100);
+  }
 
   setInterval(() => {
     if (Math.random() < 0.26) {
@@ -1010,6 +1013,7 @@ const FIREBASE_CONFIG = {
 let FIREBASE_ENABLED = false;
 let firebaseApp = null;
 let firebaseDB = null;
+let hasFirestoreLoaded = false;
 
 function initFirebase(config) {
   if (!window.firebase) {
@@ -1048,6 +1052,13 @@ function initFirebase(config) {
         });
         localStorage.setItem('ram_drafts', JSON.stringify(drafts));
         renderDrafts();
+        
+        // восстанавливаем активные дешифровки ТОЛЬКО при первой загрузке
+        if (!hasFirestoreLoaded) {
+          hasFirestoreLoaded = true;
+          console.log('✓ Первая загрузка Firestore — восстанавливаем дешифровки');
+          restoreActiveDecryptions();
+        }
       }, err => console.error('Firestore onSnapshot error', err));
   } catch (e) {
     console.error('Firebase init error', e);
