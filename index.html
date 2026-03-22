@@ -747,6 +747,42 @@ function anyActiveDecryptions() {
   return Object.keys(activeDecryptions).length > 0;
 }
 
+// Функция для восстановления активных дешифровок после перезагрузки браузера
+function restoreActiveDecryptions() {
+  const drafts = loadDrafts();
+  const now = Date.now();
+  
+  drafts.forEach(draft => {
+    // если дешифровка активна и не завершена — восстанавливаем её
+    if (draft.decryptionStartedAt && !draft.revealed && draft.decryptionEndsAt) {
+      const startTime = new Date(draft.decryptionStartedAt).getTime();
+      const endTime = new Date(draft.decryptionEndsAt).getTime();
+      
+      // если время не прошло — восстанавливаем дешифровку
+      if (now < endTime) {
+        console.log(`↺ Восстановление дешифровки ${draft.id} (осталось ${Math.ceil((endTime - now) / 1000)}s)`);
+        // используем startTime чтобы продолжить с правильного момента
+        startDecryptionById(draft.id, startTime);
+      } else {
+        // время истекло — помечаем как раскрытую
+        draft.revealed = true;
+        if (FIREBASE_ENABLED) {
+          updateRemoteDraft(draft.id, { 
+            revealed: true,
+            decryptionStartedAt: null,
+            decryptionStartedBy: null,
+            decryptionEndsAt: null
+          }).catch(e => console.warn('Failed to mark as revealed', e));
+        }
+      }
+    }
+  });
+  
+  if (drafts.some(d => d.revealed)) {
+    saveDrafts(drafts);
+  }
+}
+
 // Функция для обработки изменений дешифровки из Firestore
 function handleRemoteDecryptionStateChange(draftId, decryptionStartedAt, decryptionStartedBy) {
   // если это уже идёт локально — пропускаем
@@ -801,14 +837,16 @@ function startDecryptionById(id, remoteStartTime = null) {
   const duration = draft.duration * 1000;
   // если remoteStartTime передан (от другого пользователя) — синхронизируемся с ним
   const startTime = remoteStartTime || Date.now();
+  const endTime = startTime + duration;
   
   // сохраняем в Firebase, что дешифровка началась (только если это не синхронизация с удалённого)
   if (!remoteStartTime && FIREBASE_ENABLED) {
     const authData = localStorage.getItem(AUTH_KEY);
     const currentUser = authData ? JSON.parse(authData).user : 'Unknown';
     updateRemoteDraft(id, { 
-      decryptionStartedAt: new Date().toISOString(),
-      decryptionStartedBy: currentUser
+      decryptionStartedAt: new Date(startTime).toISOString(),
+      decryptionStartedBy: currentUser,
+      decryptionEndsAt: new Date(endTime).toISOString()
     }).catch(e => console.warn('Failed to update decryption state', e));
   }
 
@@ -843,7 +881,8 @@ function startDecryptionById(id, remoteStartTime = null) {
           updateRemoteDraft(id, { 
             revealed: true,
             decryptionStartedAt: null,
-            decryptionStartedBy: null
+            decryptionStartedBy: null,
+            decryptionEndsAt: null
           }).catch(e => console.warn('updateRemoteDraft failed', e));
         }
       }
@@ -928,6 +967,9 @@ window.onload = () => {
   checkAuth();
   loadDrafts();
   renderDrafts();
+  
+  // восстанавливаем активные дешифровки (если браузер был закрыт)
+  restoreActiveDecryptions();
 
   setInterval(() => {
     if (Math.random() < 0.26) {
@@ -994,7 +1036,8 @@ function initFirebase(config) {
             revealed: !!data.revealed,
             createdAt: data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : (data.createdAt || Date.now()),
             decryptionStartedAt: data.decryptionStartedAt || null,
-            decryptionStartedBy: data.decryptionStartedBy || null
+            decryptionStartedBy: data.decryptionStartedBy || null,
+            decryptionEndsAt: data.decryptionEndsAt || null
           };
           drafts.push(draft);
           
